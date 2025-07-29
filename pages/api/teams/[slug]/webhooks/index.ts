@@ -65,7 +65,7 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
   );
   const app = await findOrCreateApp(teamMember.team.name, teamMember.team.id);
 
-  // TODO: The endpoint URL must be HTTPS.
+  // Endpoint URL is validated to start with HTTPS by the Zod schema
 
   const data: EndpointIn = {
     description: name,
