@@ -234,11 +234,11 @@ export const url = z
   )
   .refine((url) => {
     if (url) {
-      if (url.startsWith('https://') || url.startsWith('http://')) {
-        return true;
-      }
+      return url.startsWith('https://');
     }
     return false;
+  }, {
+    message: 'URL must start with https://',
   });
 
 export const inviteToken = z
