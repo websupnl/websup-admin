@@ -47,6 +47,8 @@
   "accept-invite": "You can accept the invitation to join the team by clicking the button below.",
   "invite-create-account": "To continue, you must either create a new account or login to an existing account.",
   "no-active-team": "You do not have any active team.",
+  "no-team-heading": "Join a company",
+  "no-team-description": "Ask your administrator to invite you or search for your company to join.",
   "name": "Name",
   "email": "Email",
   "members": "Members",

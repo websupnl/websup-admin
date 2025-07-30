@@ -1,10 +1,9 @@
 import { hashPassword } from '@/lib/auth';
-import { slugify } from '@/lib/server-common';
 import { sendVerificationEmail } from '@/lib/email/sendVerificationEmail';
 import { isEmailAllowed } from '@/lib/email/utils';
 import env from '@/lib/env';
 import { ApiError } from '@/lib/errors';
-import { createTeam, getTeam, isTeamExists } from 'models/team';
+import { getTeam } from 'models/team';
 import { createUser, getUser } from 'models/user';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { recordMetric } from '@/lib/metrics';
@@ -45,7 +44,7 @@ export default async function handler(
 
 // Signup the user
 const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { name, password, team, inviteToken, recaptchaToken } = req.body;
+  const { name, password, inviteToken, recaptchaToken } = req.body;
 
   await validateRecaptcha(recaptchaToken);
 
@@ -83,22 +82,7 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
     throw new ApiError(400, 'An user with this email already exists.');
   }
 
-  // Check if team name is available
-  if (!invitation) {
-    if (!team) {
-      throw new ApiError(400, 'A team name is required.');
-    }
-
-    const slug = slugify(team);
-
-    validateWithSchema(userJoinSchema, { team, slug });
-
-    const slugCollisions = await isTeamExists(slug);
-
-    if (slugCollisions > 0) {
-      throw new ApiError(400, 'A team with this slug already exists.');
-    }
-  }
+  // When not invited, user won't be assigned to a team yet
 
   const user = await createUser({
     name,
@@ -109,15 +93,7 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
 
   let userTeam: Team | null = null;
 
-  // Create team if user is not invited
-  // So we can create the team with the user as the owner
-  if (!invitation) {
-    userTeam = await createTeam({
-      userId: user.id,
-      name: team,
-      slug: slugify(team),
-    });
-  } else {
+  if (invitation) {
     userTeam = await getTeam({ slug: invitation.team.slug });
   }
 
@@ -140,7 +116,7 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
     fields: {
       Name: user.name,
       Email: user.email,
-      Team: userTeam?.name,
+      Team: userTeam?.name || '',
     },
   });
 

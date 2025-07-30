@@ -6,6 +6,8 @@ import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Button } from 'react-daisyui';
+import { useSession } from 'next-auth/react';
+import { isSiteAdmin } from '@/lib/admin';
 import toast from 'react-hot-toast';
 import type { ApiResponse } from 'types';
 import { useRouter } from 'next/router';
@@ -17,6 +19,7 @@ import { Table } from '@/components/shared/table/Table';
 const Teams = () => {
   const router = useRouter();
   const { t } = useTranslation('common');
+  const { data: session } = useSession();
   const [team, setTeam] = useState<Team | null>(null);
   const { isLoading, isError, teams, mutateTeams } = useTeams();
   const [askConfirmation, setAskConfirmation] = useState(false);
@@ -59,13 +62,15 @@ const Teams = () => {
               {t('team-listed')}
             </p>
           </div>
-          <Button
-            color="primary"
-            size="md"
-            onClick={() => setCreateTeamVisible(!createTeamVisible)}
-          >
-            {t('create-team')}
-          </Button>
+          {isSiteAdmin(session?.user.email) && (
+            <Button
+              color="primary"
+              size="md"
+              onClick={() => setCreateTeamVisible(!createTeamVisible)}
+            >
+              {t('create-team')}
+            </Button>
+          )}
         </div>
 
         <Table

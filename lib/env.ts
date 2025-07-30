@@ -120,6 +120,8 @@ const env = {
     secretKey: process.env.STRIPE_SECRET_KEY,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   },
+
+  adminEmail: process.env.ADMIN_EMAIL,
 };
 
 export default env;

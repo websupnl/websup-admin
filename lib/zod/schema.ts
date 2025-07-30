@@ -66,17 +66,11 @@ export const updatePasswordSchema = z.object({
   newPassword: password,
 });
 
-export const userJoinSchema = z.union([
-  z.object({
-    team: teamName,
-    slug,
-  }),
-  z.object({
-    name: name(),
-    email,
-    password,
-  }),
-]);
+export const userJoinSchema = z.object({
+  name: name(),
+  email,
+  password,
+});
 
 export const resetPasswordSchema = z.object({
   password,
