@@ -1,6 +1,7 @@
 import { slugify } from '@/lib/server-common';
 import { ApiError } from '@/lib/errors';
 import { createTeam, getTeams, isTeamExists } from 'models/team';
+import { isSiteAdmin } from '@/lib/admin';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { recordMetric } from '@/lib/metrics';
 import { createTeamSchema, validateWithSchema } from '@/lib/zod';
@@ -49,6 +50,9 @@ const handlePOST = async (req: NextApiRequest, res: NextApiResponse) => {
   const { name } = validateWithSchema(createTeamSchema, req.body);
 
   const user = await getCurrentUser(req, res);
+  if (!isSiteAdmin(user.email)) {
+    throw new ApiError(403, 'Only the site admin can create teams.');
+  }
   const slug = slugify(name);
 
   if (await isTeamExists(slug)) {
